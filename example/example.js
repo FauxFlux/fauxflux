@@ -153,13 +153,14 @@ let HeaderView = FF.mobx.autorun(() => {
           'type', 'text',
           'id', 'newTodoText',
           'value', store.newTodoText,
+          'autofocus', '',
           'onkeydown', (e) => { 
             if (e.keyCode == ENTER_KEY) { 
               e.preventDefault();
               dispatch('add_new_todo');
             }
           },
-          'onkeyup', (e) => {
+          'oninput', (e) => {
             dispatch('update_new_todo_text', e.target.value) 
           },
           'class', 'new-todo',
@@ -171,7 +172,11 @@ let HeaderView = FF.mobx.autorun(() => {
     });
   }).then(() => {
     // Keep input elements consistent on state change.
-    document.getElementById('newTodoText').value = store.newTodoText;
+    let newTodoText = document.getElementById('newTodoText');
+    let start = newTodoText.selectionStart;
+    let end = newTodoText.selectionEnd;
+    newTodoText.value = store.newTodoText;
+    newTodoText.setSelectionRange(start, end);
   });
 });
 
@@ -278,7 +283,10 @@ let MainView = FF.mobx.autorun(() => {
     }
     if (store.editing) {
       let editing = document.getElementById(`edit${store.editing}`);
+      let start = editing.selectionStart;
+      let end = editing.selectionEnd;
       editing.value = editing.getAttribute('data-value');
+      editing.setSelectionRange(start, end);
     }
   });
 });

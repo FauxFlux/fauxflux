@@ -66,7 +66,7 @@
 	var ENTER_KEY = 13;
 	var ESCAPE_KEY = 27;
 
-	// Todo app state
+	// Todo app state.
 	var store = {
 	  newTodoText: '',
 	  todos: [],
@@ -231,12 +231,12 @@
 	    patch(headerElement, function () {
 	      eO('header');
 	      eO('h1');tX('todos');eC('h1');
-	      eV('input', null, null, 'type', 'text', 'id', 'newTodoText', 'value', store.newTodoText, 'onkeydown', function (e) {
+	      eV('input', null, null, 'type', 'text', 'id', 'newTodoText', 'value', store.newTodoText, 'autofocus', '', 'onkeydown', function (e) {
 	        if (e.keyCode == ENTER_KEY) {
 	          e.preventDefault();
 	          dispatch('add_new_todo');
 	        }
-	      }, 'onkeyup', function (e) {
+	      }, 'oninput', function (e) {
 	        dispatch('update_new_todo_text', e.target.value);
 	      }, 'class', 'new-todo', 'placeholder', 'What needs to be done?');
 	      eC('header');
@@ -245,7 +245,11 @@
 	    });
 	  }).then(function () {
 	    // Keep input elements consistent on state change.
-	    document.getElementById('newTodoText').value = store.newTodoText;
+	    var newTodoText = document.getElementById('newTodoText');
+	    var start = newTodoText.selectionStart;
+	    var end = newTodoText.selectionEnd;
+	    newTodoText.value = store.newTodoText;
+	    newTodoText.setSelectionRange(start, end);
 	  });
 	});
 
@@ -337,7 +341,10 @@
 	    }
 	    if (store.editing) {
 	      var editing = document.getElementById('edit' + store.editing);
+	      var start = editing.selectionStart;
+	      var end = editing.selectionEnd;
 	      editing.value = editing.getAttribute('data-value');
+	      editing.setSelectionRange(start, end);
 	    }
 	  });
 	});
