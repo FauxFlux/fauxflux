@@ -1,0 +1,35 @@
+{
+  "name": "fauxflux",
+  "version": "0.1.0",
+  "description": "Faux (made in imitation) Flux. A Flux Like Application Architecture for Building User Interfaces.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build:umd": "webpack src/FauxFlux.js index.js && webpack example/example.js example/bundle.js --config webpack.config.example.js",
+    "build:umd:min": "NODE_ENV=production webpack src/FauxFlux.js dist/fauxflux.min.js",
+    "build": "npm run build:umd",
+    "example": "webpack -w example/example.js example/bundle.js --config webpack.config.example.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FauxFlux/fauxflux.git"
+  },
+  "keywords": [
+    "Flux",
+    "MobX"
+  ],
+  "author": "Morgan Kartchner",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/FauxFlux/fauxflux/issues"
+  },
+  "homepage": "https://github.com/FauxFlux/fauxflux#readme",
+  "devDependencies": {
+    "babel-core": "^6.4.5",
+    "babel-loader": "^6.2.1",
+    "babel-preset-es2015": "^6.3.13",
+    "babel-preset-stage-0": "^6.5.0",
+    "mobx": "^2.1.1",
+    "webpack": "^1.12.11"
+  }
+}
