@@ -22,7 +22,7 @@ Be warned! This codebase is still under active development so there are no guara
 
 
 ## Demo
-Todo MVC implementation using FauxFlux and [Incremental Dom](https://github.com/google/incremental-dom) ( [Demo](https://cdn.rawgit.com/FauxFlux/fauxflux/master/example/index.html) ). Much of the code was taken from [Pete Hunt's Todo MVC](http://todomvc.com/examples/react/) React example and modified to use the FauxFlux architecture design. The code for the demo can be viewed here - [example.js](/example/example.js)
+Todo MVC implementation using FauxFlux and [Incremental Dom](https://github.com/google/incremental-dom) ( [Demo](https://cdn.rawgit.com/FauxFlux/fauxflux/46ff92d53477f9ce2bbc5bd9e6e3de4d18c50033/example/index.html) ). Much of the code was taken from [Pete Hunt's Todo MVC](http://todomvc.com/examples/react/) React example and modified to use the FauxFlux architecture design. The code for the demo can be viewed here - [example.js](/example/example.js)
 
 
 ## Todos
