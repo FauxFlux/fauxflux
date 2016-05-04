@@ -127,6 +127,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	      }
 
+	      // This could be useful for when something like  - https://github.com/mobxjs/mobx/issues/219
+	      // Road map item: introduce an opt-in strict mode, which forbids changing state outside @action (similar to how it can be forbidden already now in React.render by utilizing the undocumented method mobx.extras.allowStateChanges(boolean, fn))
+	      // Todo: Find a good way to globally set the allowStateChanges flag to false by default.
+	      // return new Promise((resolve, reject) => {
+	      //   this.mobx.extras.allowStateChanges(true, () => { resolve(this.actions[action]({store: this.store, dispatch: this.dispatch, mobx: this.mobx}, payload)); });
+	      // });
+
 	      return Promise.resolve(this.actions[action]({ store: this.store, dispatch: this.dispatch, mobx: this.mobx }, payload));
 	    }
 	  }]);
