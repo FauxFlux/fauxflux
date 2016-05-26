@@ -4,6 +4,10 @@ import mobx from 'mobx';
 class FauxFlux {
   
   constructor(store, actions) {
+    
+    // In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
+    mobx.useStrict(true);
+    
     // Make sure that a store and actions are passed in.
     if (process.env.NODE_ENV !== 'production') {
       if (!store) {
@@ -14,7 +18,7 @@ class FauxFlux {
       }
     }
 
-    // Set up mobx. https://github.com/mobxjs/mobx
+    // Set up mobx. https://github.com/mobxjs/mobx (v2.2.1 or greater)
     this.mobx = mobx;
     // Set up the store as a Mobx Observable if it is not one already.
     this.store = ( !this.mobx.isObservable(store) ? this.mobx.observable(store) : store );
@@ -36,7 +40,8 @@ class FauxFlux {
         }
       }
       // Set the action as a method on this instance's actions object.
-      this.actions[name] = action;
+      // Wrap it in a MobX action to allow the action we pass to modify the state.
+      this.actions[name] = this.mobx.action(action);
     });
   }
 
@@ -47,14 +52,7 @@ class FauxFlux {
         throw new Error(`The action [${action}], is not a registered action. Please make sure you have spelled the action name correctly and it is in the actions available.`);
       }
     }
-
-    // This could be useful for when something like  - https://github.com/mobxjs/mobx/issues/219
-    // Road map item: introduce an opt-in strict mode, which forbids changing state outside @action (similar to how it can be forbidden already now in React.render by utilizing the undocumented method mobx.extras.allowStateChanges(boolean, fn))
-    // Todo: Find a good way to globally set the allowStateChanges flag to false by default.
-    // return new Promise((resolve, reject) => {
-    //   this.mobx.extras.allowStateChanges(true, () => { resolve(this.actions[action]({store: this.store, dispatch: this.dispatch, mobx: this.mobx}, payload)); });
-    // });
-
+    
     return Promise.resolve(this.actions[action]({store: this.store, dispatch: this.dispatch, mobx: this.mobx}, payload));
   }
 
