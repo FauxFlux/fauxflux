@@ -60,4 +60,4 @@ class FauxFlux {
 
 
 
-export { FauxFlux as default };
+module.exports = FauxFlux;
