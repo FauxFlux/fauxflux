@@ -480,11 +480,6 @@
 				/* WEBPACK VAR INJECTION */(function (process) {
 					'use strict';
 
-					Object.defineProperty(exports, "__esModule", {
-						value: true
-					});
-					exports.default = undefined;
-
 					var _createClass = function () {
 						function defineProperties(target, props) {
 							for (var i = 0; i < props.length; i++) {
@@ -511,10 +506,15 @@
 
 					var FauxFlux = function () {
 						function FauxFlux(store, actions) {
+							var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
 							_classCallCheck(this, FauxFlux);
 
-							// In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
-							_mobx2.default.useStrict(true);
+							// Default to useStrict mode.
+							if (options.useStrict != false) {
+								// In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
+								_mobx2.default.useStrict(true);
+							}
 
 							// Make sure that a store and actions are passed in.
 							if (process.env.NODE_ENV !== 'production') {
@@ -576,7 +576,7 @@
 						return FauxFlux;
 					}();
 
-					exports.default = FauxFlux;
+					module.exports = FauxFlux;
 					/* WEBPACK VAR INJECTION */
 				}).call(exports, __webpack_require__(1));
 

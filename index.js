@@ -68,10 +68,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	var FauxFlux = function () {
 	  function FauxFlux(store, actions) {
+	    var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
+
 	    _classCallCheck(this, FauxFlux);
 
-	    // In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
-	    _mobx2.default.useStrict(true);
+	    // Default to useStrict mode.
+	    if (options.useStrict != false) {
+	      // In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
+	      _mobx2.default.useStrict(true);
+	    }
 
 	    // Make sure that a store and actions are passed in.
 	    if (process.env.NODE_ENV !== 'production') {

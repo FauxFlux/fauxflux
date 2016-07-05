@@ -3,10 +3,13 @@ import mobx from 'mobx';
 
 class FauxFlux {
   
-  constructor(store, actions) {
+  constructor(store, actions, options = {}) {
     
-    // In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
-    mobx.useStrict(true);
+    // Default to useStrict mode.
+    if (options.useStrict != false) {
+      // In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
+      mobx.useStrict(true);
+    }
     
     // Make sure that a store and actions are passed in.
     if (process.env.NODE_ENV !== 'production') {
