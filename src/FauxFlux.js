@@ -44,7 +44,7 @@ class FauxFlux {
       }
       // Set the action as a method on this instance's actions object.
       // Wrap it in a MobX action to allow the action we pass to modify the state.
-      this.actions[name] = this.mobx.action(action);
+      this.actions[name] = this.mobx.action(`FauxFlux action - ${name}`, action);
     });
   }
 
