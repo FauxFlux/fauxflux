@@ -174,7 +174,7 @@
 	  }
 	}];
 	// Create our FauxFlux instance.
-	var FF = new _index2.default(store, actions);
+	var FF = new _index2.default(store, actions, { debug: true });
 
 	////////////////////////// localStorage
 
@@ -506,15 +506,80 @@
 
 					var FauxFlux = function () {
 						function FauxFlux(store, actions) {
+							var _this = this;
+
 							var options = arguments.length <= 2 || arguments[2] === undefined ? {} : arguments[2];
 
 							_classCallCheck(this, FauxFlux);
 
+							/*
+	       * Using the awesome Mobx library for our observables
+	       * https://github.com/mobxjs/mobx (v2.2.1 or greater)
+	       */
+							this.mobx = _mobx2.default;
+
+							/* ------------------ Options ------------------*/
+
 							// Default to useStrict mode.
 							if (options.useStrict != false) {
 								// In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
-								_mobx2.default.useStrict(true);
+								this.mobx.useStrict(true);
 							}
+
+							if (process.env.NODE_ENV !== 'production' && options.debug) {
+								(function () {
+									// Cool gist for logging mobx actions - https://gist.github.com/mmazzarolo/8d321f01f749d3470f0314e773114a95
+
+									/* --- BEGIN DEV DEBUGGING ------------*/
+
+									var DEFAULT_STYLE = 'color: #006d92; font-weight:bold;';
+
+									// Just call this function after MobX initialization
+									// As argument you can pass an object with:
+									// - collapsed: true   -> shows the log collapsed
+									// - style             -> the style applied to the action description
+									var startLogging = function startLogging() {
+										var _ref = arguments.length <= 0 || arguments[0] === undefined ? {} : arguments[0];
+
+										var collapsed = _ref.collapsed;
+										var style = _ref.style;
+
+										_this.mobx.spy(function (event) {
+											if (event.type === 'action') {
+												if (collapsed) {
+													console.groupCollapsed('Action @ ' + formatTime(new Date()) + ' ' + event.name);
+												} else {
+													console.group('Action @ ' + formatTime(new Date()) + ' ' + event.name);
+												}
+												console.log('%cType: ', style || DEFAULT_STYLE, event.type);
+												console.log('%cName: ', style || DEFAULT_STYLE, event.name);
+												console.log('%cTarget: ', style || DEFAULT_STYLE, event.target);
+												console.log('%cArguments: ', style || DEFAULT_STYLE, event.arguments);
+												console.groupEnd();
+											}
+										});
+									};
+
+									// Utilities
+									var repeat = function repeat(str, times) {
+										return new Array(times + 1).join(str);
+									};
+									var pad = function pad(num, maxLength) {
+										return repeat('0', maxLength - num.toString().length) + num;
+									};
+									var formatTime = function formatTime(time) {
+										return pad(time.getHours(), 2) + ':' + pad(time.getMinutes(), 2) + ':' + pad(time.getSeconds(), 2) + '.' + pad(time.getMilliseconds(), 3);
+									};
+
+									startLogging({ collapsed: true });
+
+									/* --- END DEV DEBUGGING ------------*/
+								})();
+							}
+
+							/* ------------------ /Options ------------------*/
+
+							/* ------------------ Errors ------------------*/
 
 							// Make sure that a store and actions are passed in.
 							if (process.env.NODE_ENV !== 'production') {
@@ -526,8 +591,10 @@
 								}
 							}
 
-							// Set up mobx. https://github.com/mobxjs/mobx (v2.2.1 or greater)
-							this.mobx = _mobx2.default;
+							/* ------------------ /Errors ------------------*/
+
+							/* ------------------ Setup ------------------*/
+
 							// Set up the store as a Mobx Observable if it is not one already.
 							this.store = !this.mobx.isObservable(store) ? this.mobx.observable(store) : store;
 							// Get the actions object ready to add actions to in the registerActions method below.
@@ -537,26 +604,28 @@
 							this.dispatch = this.dispatch.bind(this);
 							// Register the actions that are passed in when initilizing.
 							this.registerActions(actions);
+
+							/* ------------------ /Setup ------------------*/
 						}
 
 						_createClass(FauxFlux, [{
 							key: 'registerActions',
 							value: function registerActions(actions) {
-								var _this = this;
+								var _this2 = this;
 
-								actions.forEach(function (_ref) {
-									var name = _ref.name;
-									var action = _ref.action;
+								actions.forEach(function (_ref2) {
+									var name = _ref2.name;
+									var action = _ref2.action;
 
 									// Check for multiple actions with the same name being defined.
 									if (process.env.NODE_ENV !== 'production') {
-										if (_this.actions[name]) {
+										if (_this2.actions[name]) {
 											throw new Error('The action [' + name + '], has been created more than once! Please rename one of these actions.');
 										}
 									}
 									// Set the action as a method on this instance's actions object.
 									// Wrap it in a MobX action to allow the action we pass to modify the state.
-									_this.actions[name] = _this.mobx.action('FauxFlux action - ' + name, action);
+									_this2.actions[name] = _this2.mobx.action('FauxFlux action - ' + name, action);
 								});
 							}
 						}, {

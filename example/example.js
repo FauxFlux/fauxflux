@@ -97,7 +97,7 @@ let actions = [
   }
 ];
 // Create our FauxFlux instance.
-let FF = new FauxFlux(store, actions);
+let FF = new FauxFlux(store, actions, { debug: true });
 
 
 ////////////////////////// localStorage
