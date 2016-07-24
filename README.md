@@ -13,7 +13,66 @@ npm install --save fauxflux mobx
 FauxFlux also relies on Promises - supported in all major browsers besides IE
 
 
-More documentation coming soon...
+## Quick Overview In Code
+
+```js
+
+// Object containing all of the application state.
+var store = {
+  selectedState: 'New York'
+};
+
+// Array of functions that can be dispatched to update the state in the store.
+var actions = [
+  {
+    name: 'update_selectedState',
+    action: function (ff, payload) {
+      // ff.store; - reference to the store.
+      // ff.dispatch; - actions can dispatch other actions.
+      // ff.mobx; - reference to the MobX library.
+
+      // The ff.store is a MobX observable, so any property on it
+      // can be mutated in place, and any watchers attached to the property
+      // will be notified!
+      ff.store.selectedState = payload;
+    }
+  }
+];
+
+// Object of option flags 
+// useStrict - Allow or disallow changes to the state outside of a MobX action.
+// debug - console.log out any action called within the application. Useful for tracking a series of state changes.
+var options = {
+  useStrict: true, // true by default
+  debug: true, // false by default and will be ignored if built with production flag for `NODE_ENV`.
+};
+
+
+var FF = new FauxFlux(store, actions, options);
+
+
+// Add a watcher onto the selectedState property of the store.
+// Every time the property changes, this function will be called.
+FF.mobx.autorun(function () {
+  console.log('selectedState', FF.store.selectedState);
+});
+
+// Simulate some sort of async requests.
+setTimeout(function () {
+  FF.dispatch('update_selectedState', 'Idaho');
+}, 1000);
+
+setTimeout(function () {
+  FF.dispatch('update_selectedState', 'Utah');
+}, 2000);
+
+// Should result in 
+// console.log - 'New York'
+// 1 second later
+// console.log - 'Idaho'
+// 1 more second later
+// console.log - 'Utah'
+```
 
 
 ## Notice
