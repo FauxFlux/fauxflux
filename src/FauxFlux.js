@@ -20,7 +20,7 @@ class FauxFlux {
         this.mobx.useStrict(true);
       }
 
-      if (process.env.NODE_ENV !== 'production' && options.debug) {
+      if ('production' !== process.env.NODE_ENV && options.debug) {
         // Cool gist for logging mobx actions - https://gist.github.com/mmazzarolo/8d321f01f749d3470f0314e773114a95
         
         /* --- BEGIN DEV DEBUGGING ------------*/
@@ -65,7 +65,7 @@ class FauxFlux {
     /* ------------------ Errors ------------------*/
     
       // Make sure that a store and actions are passed in.
-      if (process.env.NODE_ENV !== 'production') {
+      if ('production' !== process.env.NODE_ENV) {
         if (!store) {
           throw new Error('A store object should be passed as the first argument to the FauxFlux instance -- Example: new FauxFlux(store: {}, actions: [])');
         }
@@ -96,7 +96,7 @@ class FauxFlux {
   registerActions(actions) {
     actions.forEach( ({name, action}) => {
       // Check for multiple actions with the same name being defined.
-      if (process.env.NODE_ENV !== 'production') {
+      if ('production' !== process.env.NODE_ENV) {
         if (this.actions[name]) {
           throw new Error(`The action [${name}], has been created more than once! Please rename one of these actions.`);
         }
@@ -109,7 +109,7 @@ class FauxFlux {
 
   dispatch(action, payload) {
     // Check to make sure the action we are calling has been registered.
-    if (process.env.NODE_ENV !== 'production') {
+    if ('production' !== process.env.NODE_ENV) {
       if (!this.actions[action]) {
         throw new Error(`The action [${action}], is not a registered action. Please make sure you have spelled the action name correctly and it is in the actions available.`);
       }
