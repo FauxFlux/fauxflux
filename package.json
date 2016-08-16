@@ -1,6 +1,6 @@
 {
   "name": "fauxflux",
-  "version": "0.1.7",
+  "version": "0.1.8",
   "description": "Faux (made in imitation) Flux. A Flux Like Application Architecture for Building User Interfaces.",
   "main": "FauxFlux.js",
   "scripts": {
