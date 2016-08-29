@@ -46,19 +46,27 @@
 
 	'use strict';
 
-	var _index = __webpack_require__(1);
-
-	var _index2 = _interopRequireDefault(_index);
-
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
-
+	var FauxFlux = __webpack_require__(1);
 	var _IncrementalDOM = IncrementalDOM;
 	var patch = _IncrementalDOM.patch;
 	var eO = _IncrementalDOM.elementOpen;
 	var eC = _IncrementalDOM.elementClose;
 	var eV = _IncrementalDOM.elementVoid;
 	var tX = _IncrementalDOM.text;
+	var attributes = _IncrementalDOM.attributes;
 
+	// Update incremental dom's value and checked props for what we need in our reactive views.
+
+	attributes.value = function (element, name, value) {
+	  var start = element.selectionStart;
+	  var end = element.selectionEnd;
+	  element.value = value;
+	  element.setSelectionRange(start, end);
+	};
+
+	attributes.checked = function (element, name, value) {
+	  element.checked = value;
+	};
 
 	var FILTER_ALL = 'all';
 	var FILTER_ACTIVE = 'active';
@@ -174,7 +182,7 @@
 	  }
 	}];
 	// Create our FauxFlux instance.
-	var FF = new _index2.default(store, actions, { debug: true });
+	var FF = new FauxFlux(store, actions, { useStrict: true, debug: true });
 
 	////////////////////////// localStorage
 
@@ -194,11 +202,12 @@
 	  }
 	}, {
 	  name: 'localStorage_set_todos',
-	  action: function action(_ref14, key) {
+	  action: function action(_ref14, _ref15) {
 	    var store = _ref14.store;
 	    var mobx = _ref14.mobx;
+	    var key = _ref15.key;
+	    var todos = _ref15.todos;
 
-	    var todos = mobx.toJS(store.todos);
 	    localStorage.setItem(key, JSON.stringify(todos));
 	  }
 	}];
@@ -207,9 +216,10 @@
 	// Make sure to check for todos in the localStorage before autorunning our localStorage_set_todos dispatch function.
 	FF.dispatch('localStorage_init_todos', key).then(function () {
 	  // Run the localStorage_set_todos action anytime an observable inside that action changes.
-	  // In this case the todos array. --- let todos = mobx.toJS(store.todos);
+	  // In this case the todos array. --- let todos = FF.mobx.toJS(store.todos);
 	  FF.mobx.autorun(function () {
-	    return FF.dispatch('localStorage_set_todos', key);
+	    var todos = FF.mobx.toJS(store.todos);
+	    FF.dispatch('localStorage_set_todos', { key: key, todos: todos });
 	  });
 	});
 
@@ -220,6 +230,8 @@
 	// set the filter, which is based off the hash, on the inital render.
 	FF.dispatch('hash_has_changed');
 
+	window.FF = FF;
+
 	var headerElement = document.getElementById('header');
 	// Put our views in mobx.autorun so they will call patch anytime an observable in the autorun function changes.
 	// Self patching views!!!!
@@ -227,29 +239,18 @@
 	  var store = FF.store;
 	  var dispatch = FF.dispatch;
 
-	  new Promise(function (resolve, reject) {
-	    patch(headerElement, function () {
-	      eO('header');
-	      eO('h1');tX('todos');eC('h1');
-	      eV('input', null, null, 'type', 'text', 'id', 'newTodoText', 'value', store.newTodoText, 'autofocus', '', 'onkeydown', function (e) {
-	        if (e.keyCode == ENTER_KEY) {
-	          e.preventDefault();
-	          dispatch('add_new_todo');
-	        }
-	      }, 'oninput', function (e) {
-	        dispatch('update_new_todo_text', e.target.value);
-	      }, 'class', 'new-todo', 'placeholder', 'What needs to be done?');
-	      eC('header');
-	      // Resolve our promise - end of patch.
-	      resolve();
-	    });
-	  }).then(function () {
-	    // Keep input elements consistent on state change.
-	    var newTodoText = document.getElementById('newTodoText');
-	    var start = newTodoText.selectionStart;
-	    var end = newTodoText.selectionEnd;
-	    newTodoText.value = store.newTodoText;
-	    newTodoText.setSelectionRange(start, end);
+	  patch(headerElement, function () {
+	    eO('header');
+	    eO('h1');tX('todos');eC('h1');
+	    eV('input', null, null, 'type', 'text', 'id', 'newTodoText', 'value', store.newTodoText, 'autofocus', '', 'onkeydown', function (e) {
+	      if (e.keyCode == ENTER_KEY) {
+	        e.preventDefault();
+	        dispatch('add_new_todo');
+	      }
+	    }, 'oninput', function (e) {
+	      dispatch('update_new_todo_text', e.target.value);
+	    }, 'class', 'new-todo', 'placeholder', 'What needs to be done?');
+	    eC('header');
 	  });
 	});
 
@@ -258,94 +259,75 @@
 	  var store = FF.store;
 	  var dispatch = FF.dispatch;
 
-	  new Promise(function (resolve, reject) {
-	    patch(mainElement, function () {
-	      eO('section', null, null, 'class', 'main', 'style', { display: store.todos.length ? 'block' : 'none' });
-	      eV('input', null, null, 'type', 'checkbox', 'id', 'toggleAll', 'class', 'toggle-all', 'onclick', function (e) {
-	        dispatch('toggle_all_completed', e.target.checked);
-	      }, 'data-checked', store.activeTodoCount == 0);
-	      // TODO ITEMS
-	      eO('ul', null, null, 'class', 'todo-list');
-	      var shownTodos = store.todos.filter(function (todo) {
-	        switch (store.filter) {
-	          case FILTER_ACTIVE:
-	            return !todo.completed;
-	          case FILTER_COMPLETED:
-	            return todo.completed;
-	          default:
-	            return true;
-	        }
-	      });
-	      shownTodos.forEach(function (todo) {
-	        eO('li', todo.id, null, 'class', todoClassNames(todo));
-	        eO('div', null, null, 'class', 'view');
-	        eV('input', null, null, 'type', 'checkbox', 'class', 'toggle', 'onclick', function (e) {
-	          dispatch('toggle_completed', todo);
-	        }, 'data-checked', todo.completed);
-	        eO('label', null, null, 'ondblclick', function (e) {
-	          dispatch('edit_todo_editingText', { todoToEdit: todo, editingText: todo.title }).then(function () {
-	            dispatch('set_edit_id', todo.id).then(function () {
-	              var node = document.getElementById('edit' + todo.id);
-	              node.focus();
-	              node.setSelectionRange(node.value.length, node.value.length);
-	            });
+	  patch(mainElement, function () {
+	    eO('section', null, null, 'class', 'main', 'style', { display: store.todos.length ? 'block' : 'none' });
+	    eV('input', null, null, 'type', 'checkbox', 'id', 'toggleAll', 'class', 'toggle-all', 'onclick', function (e) {
+	      dispatch('toggle_all_completed', e.target.checked);
+	    }, 'checked', store.activeTodoCount == 0);
+	    // TODO ITEMS
+	    eO('ul', null, null, 'class', 'todo-list');
+	    var shownTodos = store.todos.filter(function (todo) {
+	      switch (store.filter) {
+	        case FILTER_ACTIVE:
+	          return !todo.completed;
+	        case FILTER_COMPLETED:
+	          return todo.completed;
+	        default:
+	          return true;
+	      }
+	    });
+	    shownTodos.forEach(function (todo) {
+	      eO('li', todo.id, null, 'class', todoClassNames(todo));
+	      eO('div', null, null, 'class', 'view');
+	      eV('input', null, null, 'type', 'checkbox', 'class', 'toggle', 'onclick', function (e) {
+	        dispatch('toggle_completed', todo);
+	      }, 'checked', todo.completed);
+	      eO('label', null, null, 'ondblclick', function (e) {
+	        dispatch('edit_todo_editingText', { todoToEdit: todo, editingText: todo.title }).then(function () {
+	          dispatch('set_edit_id', todo.id).then(function () {
+	            var node = document.getElementById('edit' + todo.id);
+	            node.focus();
+	            node.setSelectionRange(node.value.length, node.value.length);
 	          });
 	        });
-	        tX(todo.title);
-	        eC('label');
-	        eV('button', null, null, 'class', 'destroy', 'onclick', function (e) {
-	          e.preventDefault();dispatch('delete_todo', todo);
-	        });
-	        eC('div');
-	        eV('input', null, null, 'type', 'input', 'data-value', todo.editingText, 'id', 'edit' + todo.id, 'class', 'edit', 'onblur', function (e) {
-	          dispatch('set_edit_id', null);
-	        }, 'oninput', function (e) {
-	          dispatch('edit_todo_editingText', { todoToEdit: todo, editingText: e.target.value });
-	        }, 'onkeydown', function (e) {
-	          // If the escape key is pressed, just exit edit mode.
-	          if (e.which === ESCAPE_KEY) {
-	            e.preventDefault();
-	            dispatch('set_edit_id', null);
-	            // If the enter key is pressed ---
-	          } else if (e.which === ENTER_KEY) {
-	              e.preventDefault();
-	              // Delete the todo if no length in the edit title
-	              if (!todo.editingText.length) {
-	                dispatch('delete_todo', todo);
-	                // Otherwise, set the title to the edit title and exit edit mode.
-	              } else {
-	                  dispatch('edit_todo_title', {
-	                    todoToEdit: todo,
-	                    title: todo.editingText
-	                  }).then(function () {
-	                    dispatch('set_edit_id', null);
-	                  });
-	                }
-	            }
-	        });
-	        eC('li');
 	      });
-	      eC('ul');
-	      // END TODO ITEMS
-	      eC('section');
-	      // Resolve our promise - end of patch.
-	      resolve();
+	      tX(todo.title);
+	      eC('label');
+	      eV('button', null, null, 'class', 'destroy', 'onclick', function (e) {
+	        e.preventDefault();dispatch('delete_todo', todo);
+	      });
+	      eC('div');
+	      eV('input', null, null, 'type', 'input', 'value', todo.editingText, 'id', 'edit' + todo.id, 'class', 'edit', 'onblur', function (e) {
+	        dispatch('set_edit_id', null);
+	      }, 'oninput', function (e) {
+	        dispatch('edit_todo_editingText', { todoToEdit: todo, editingText: e.target.value });
+	      }, 'onkeydown', function (e) {
+	        // If the escape key is pressed, just exit edit mode.
+	        if (e.which === ESCAPE_KEY) {
+	          e.preventDefault();
+	          dispatch('set_edit_id', null);
+	          // If the enter key is pressed ---
+	        } else if (e.which === ENTER_KEY) {
+	            e.preventDefault();
+	            // Delete the todo if no length in the edit title
+	            if (!todo.editingText.length) {
+	              dispatch('delete_todo', todo);
+	              // Otherwise, set the title to the edit title and exit edit mode.
+	            } else {
+	                dispatch('edit_todo_title', {
+	                  todoToEdit: todo,
+	                  title: todo.editingText
+	                }).then(function () {
+	                  dispatch('set_edit_id', null);
+	                });
+	              }
+	          }
+	      });
+	      eC('li');
 	    });
-	  }).then(function () {
-	    // Keep input elements consistent on state change.
-	    document.getElementById('toggleAll').checked = store.activeTodoCount == 0;
-	    var inputs = document.querySelectorAll('.toggle'),
-	        i = void 0;
-	    for (i = 0; i < inputs.length; ++i) {
-	      inputs[i].checked = inputs[i].getAttribute('data-checked') == 'true' ? true : false;
-	    }
-	    if (store.editing) {
-	      var editing = document.getElementById('edit' + store.editing);
-	      var start = editing.selectionStart;
-	      var end = editing.selectionEnd;
-	      editing.value = editing.getAttribute('data-value');
-	      editing.setSelectionRange(start, end);
-	    }
+	    eC('ul');
+	    // END TODO ITEMS
+	    eC('section');
 	  });
 	});
 
