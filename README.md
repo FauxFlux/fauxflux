@@ -1,4 +1,4 @@
-# FauxFlux
+# FauxFlux (This library is deprecated, and no longer being actively maintained)
 
 Faux (made in imitation) Flux. A Flux Like Application Architecture for Building User Interfaces.
 
