@@ -1,4 +1,4 @@
-import mobx from 'mobx';
+const mobx = require('mobx');
 
 
 class FauxFlux {
@@ -7,7 +7,7 @@ class FauxFlux {
     
     /*
      * Using the awesome Mobx library for our observables
-     * https://github.com/mobxjs/mobx (v2.2.1 or greater)
+     * https://github.com/mobxjs/mobx (v4 or greater)
      */
     this.mobx = mobx;
 
@@ -17,7 +17,7 @@ class FauxFlux {
       // Default to useStrict mode.
       if (options.useStrict != false) {
         // In strict mode, MobX will throw an exception on any attempt to modify state outside a MobX action.
-        this.mobx.useStrict(true);
+        this.mobx.configure({ enforceActions: "always" });
       }
 
       if ('production' !== process.env.NODE_ENV && options.debug) {

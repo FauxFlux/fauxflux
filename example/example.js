@@ -1,4 +1,5 @@
 let FauxFlux = require('../index');
+let mobx = require('mobx');
 let { patch, elementOpen: eO, elementClose: eC, elementVoid: eV, text: tX, attributes } = IncrementalDOM;
 
 // Update incremental dom's value and checked props for what we need in our reactive views.
@@ -25,12 +26,12 @@ let store = {
   todos: [],
   editing: null,
   filter: FILTER_ALL,
-  activeTodoCount() {
+  get activeTodoCount() {
     return store.todos.reduce( (accum, todo) => {
       return todo.completed ? accum : accum + 1;
     }, 0);
   },
-  completedCount() {
+  get completedCount() {
     return store.todos.length - store.activeTodoCount;
   }
 };
@@ -108,6 +109,16 @@ let actions = [
     }
   }
 ];
+let decoratorFields = {
+  completedCount: mobx.computed,
+  activeTodoCount: mobx.computed
+};
+Object.keys(store).forEach(key => {
+  if (!decoratorFields[key]) {
+    decoratorFields[key] = mobx.observable
+  }
+});
+mobx.decorate(store, decoratorFields);
 // Create our FauxFlux instance.
 let FF = new FauxFlux(store, actions, { useStrict: true, debug: true });
 
@@ -122,7 +133,7 @@ let localStorageActions = [
     name: 'localStorage_init_todos',
     action({store, mobx}, key) {
       let jsonTodos = localStorage.getItem(key);
-      if (jsonTodos) { mobx.extendObservable(store, { todos: JSON.parse(jsonTodos) }); }
+      if (jsonTodos) { mobx.set(store, { todos: JSON.parse(jsonTodos) }); }
     }
   },
   {

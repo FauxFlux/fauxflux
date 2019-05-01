@@ -1,6 +1,6 @@
 {
   "name": "fauxflux",
-  "version": "0.1.9",
+  "version": "1.0.0-beta.0",
   "description": "Faux (made in imitation) Flux. A Flux Like Application Architecture for Building User Interfaces.",
   "main": "FauxFlux.js",
   "scripts": {
@@ -25,11 +25,12 @@
   },
   "homepage": "https://github.com/FauxFlux/fauxflux#readme",
   "devDependencies": {
+    "babel-cli": "^6.26.0",
     "babel-core": "^6.4.5",
     "babel-loader": "^6.2.1",
     "babel-preset-es2015": "^6.3.13",
     "babel-preset-stage-0": "^6.5.0",
-    "mobx": "^2.2.1",
+    "mobx": "^4.9.4",
     "webpack": "^1.12.11"
   }
 }
