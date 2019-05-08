@@ -489,7 +489,6 @@
 						}
 					}
 
-					// import mobx from 'mobx';
 					var mobx = __webpack_require__(2);
 
 					var FauxFlux = function () {

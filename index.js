@@ -60,7 +60,6 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
 
-	// import mobx from 'mobx';
 	var mobx = __webpack_require__(2);
 
 	var FauxFlux = function () {

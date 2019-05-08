@@ -1,8 +1,8 @@
 {
   "name": "fauxflux",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "Faux (made in imitation) Flux. A Flux Like Application Architecture for Building User Interfaces.",
-  "main": "FauxFlux.js",
+  "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "build:umd": "webpack src/FauxFlux.js index.js && webpack example/example.js example/bundle.js --config webpack.config.example.js && babel src/FauxFlux.js --out-file src/FauxFlux-compiled.js ",

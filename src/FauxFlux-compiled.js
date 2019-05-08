@@ -1,4 +1,3 @@
-// import mobx from 'mobx';
 const mobx = require('mobx');
 
 class FauxFlux {
